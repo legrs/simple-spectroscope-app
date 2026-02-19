@@ -31,8 +31,6 @@ static int capCount;
 static int width;
 static int height;
 
-
-extern "C"{
 // FDにバイナリデータを書き込むヘルパー関数
 bool writeMatToFd(int fd, const cv::Mat& mat, const std::string& ext, const std::vector<int>& params) {
     std::vector<uchar> buffer;
@@ -52,6 +50,8 @@ bool writeMatToFd(int fd, const cv::Mat& mat, const std::string& ext, const std:
 
     return (written == buffer.size());
 }
+
+extern "C"{
 
 JNIEXPORT void JNICALL
 Java_com_example_ssa_Cam_prepare(
@@ -117,96 +117,101 @@ Java_com_example_ssa_Cam_accumulateImg(
 }
 
 
-//JNIEXPORT jbyteArray JNICALL
-//Java_com_example_ssa_Cam_processImg(
-//        JNIEnv* env,
-//        jobject tmp,
-//        jstring jfilepath
-//        ){
-//    
-//    std::stringstream ss;
-//    if(jfilepath == nullptr){
-//        ss << "ぬるぽ" << endl;
-//        return nullptr;
-//    }
-//
-//
-//    ss << "" << stacked.at<float>(10,10) << "、ですね!" << endl;
-//    Mat stacked16;
-//    //stacked.convertTo(stacked16, CV_32FC1, 1.0 / 65535.0 );
-//    stacked.convertTo(stacked16, CV_16UC1, 16.0 / capCount);
-//
-//    std::vector<unsigned char> buffer;
-//    if(!imencode(".tif", stacked16, buffer)){
-//        return nullptr;
-//    }
-//
-//    jbyteArray resultByte = env->NewByteArray(buffer.size());
-//    env->SetByteArrayRegion(resultByte, 0, buffer.size(), (jbyte*)buffer.data());
-//
-//    /*
-//    Mat result;
-//
-//    stacked.convertTo(*result, CV_16U1, 1.0 / capCount );
-//    stacked.release();
-//    */
-//
-//
-//
-//    //imwrite()
-//
-//    // save csv
-//    const char* filepath = env->GetStringUTFChars(jfilepath, nullptr);
-//    std::fstream csvFile(filepath, std::ios::out);
-//    if(csvFile.is_open()){
-//        csvFile << ss.str();
-//        csvFile.close();
-//    }else{
-//        ss << "file is not opened" << std::endl;
-//    }
-//    env->ReleaseStringUTFChars(jfilepath, filepath);
-//
-//    return resultByte;
-//}
+JNIEXPORT jbyteArray JNICALL
+Java_com_example_ssa_Cam_processImg(
+        JNIEnv* env,
+        jobject tmp,
+        jstring jfilepath
+        ){
+    
+    std::stringstream ss;
+    if(jfilepath == nullptr){
+        ss << "ぬるぽ" << endl;
+        return nullptr;
+    }
 
 
-JNIEXPORT jstring JNICALL
+    ss << "" << stacked.at<float>(10,10) << "、ですね!" << endl;
+    Mat stacked16;
+    //stacked.convertTo(stacked16, CV_32FC1, 1.0 / 65535.0 );
+    stacked.convertTo(stacked16, CV_16UC1, 1.0 / capCount * 16);
+
+    std::vector<unsigned char> buffer;
+    if(!imencode(".tif", stacked16, buffer)){
+        return nullptr;
+    }
+
+    jbyteArray resultByte = env->NewByteArray(buffer.size());
+    env->SetByteArrayRegion(resultByte, 0, buffer.size(), (jbyte*)buffer.data());
+
+    /*
+    Mat result;
+
+    stacked.convertTo(*result, CV_16U1, 1.0 / capCount );
+    stacked.release();
+    */
+
+
+
+    //imwrite()
+
+    // save csv
+    const char* filepath = env->GetStringUTFChars(jfilepath, nullptr);
+    std::fstream csvFile(filepath, std::ios::out);
+    if(csvFile.is_open()){
+        csvFile << ss.str();
+        csvFile.close();
+    }else{
+        ss << "file is not opened" << std::endl;
+    }
+    env->ReleaseStringUTFChars(jfilepath, filepath);
+
+    return resultByte;
+}
+
+
+JNIEXPORT void JNICALL
 Java_com_example_ssa_Cam_saveImg(
         JNIEnv* env, jobject,
         jint fdTiff,
         jint fdJpeg) {
-    stringstream ss;
+
+    if (originalMat->empty()) return;
 
     // --- 1. TIFF保存 (32bit Floatのまま) ---
-    vector<int> tiffParams;
+    std::vector<int> tiffParams;
     tiffParams.push_back(cv::IMWRITE_TIFF_COMPRESSION);
     tiffParams.push_back(1); // 圧縮なし (高速化のため)
 
     // FDへ書き込み
-    writeMatToFd(fdTiff, stacked, ".tif", tiffParams);
+    writeMatToFd(fdTiff, *originalMat, ".tif", tiffParams);
 
     // --- 2. JPEG保存 (8bitへ変換して保存) ---
-    Mat displayMat;
+    cv::Mat displayMat;
     
     // 32bit -> 8bit 変換 (0.0-1.0 を 0-255 に)
     // 必要に応じてここでガンマ補正など、人間が見やすい加工をする
-    Mat tmp;
-    normalize(stacked, tmp, 0, 255, NORM_MINMAX, CV_8UC1);
-    cvtColor(tmp, displayMat, COLOR_BayerGR2BGR);
+    originalMat->convertTo(displayMat, CV_8U, 255.0);
 
-    ss << "stackedの値は、" << stacked.at<float>(0,0) << "、ですよ！" << endl;
-    ss << "tmpの値は、" << to_string(tmp.at<unsigned char>(0,0)) << "、ですよ！" << endl;
-    ss << "displayMatの値は…" << to_string(displayMat.at<Vec3b>(0,0)[0]) << "、ですよ…………疲れました" << endl;
-
-    vector<int> jpgParams;
+    std::vector<int> jpgParams;
     jpgParams.push_back(cv::IMWRITE_JPEG_QUALITY);
     jpgParams.push_back(90); // 画質90
 
     // FDへ書き込み
     writeMatToFd(fdJpeg, displayMat, ".jpg", jpgParams);
-
-    return env->NewStringUTF(ss.str().c_str());
 }
-
+//JNIEXPORT void JNICALL
+//Java_com_example_ssa_SaveCsv_resizeImg(
+//        JNIEnv* env, 
+//        jobject,
+//        jint img_width, 
+//        jint img_height
+//        ){
+//
+//    width = img_width;
+//    height = img_height;
+//    stacked = Mat::zeros(height,width,CV_32FC1);
+//    capCount = 0;
+//}
 
 }

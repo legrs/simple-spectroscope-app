@@ -17,8 +17,18 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SSA">
         <activity
-            android:name=".cs"
+            android:name=".CsvMake"
             android:exported="false" />
+        <activity
+            android:name=".senCal"
+            android:exported="false" />
+        <activity
+            android:name=".wlCalib"
+            android:exported="false" />
+        <activity
+            android:name=".CsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.SSA" />
         <activity
             android:name=".ViewActivity"
             android:exported="false"

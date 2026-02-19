@@ -34,6 +34,14 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("a ", "start transition to capture mode！");
             }
         });
+        Button make_csv = binding.csvBtn;
+        make_csv.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View v){
+                Intent intent = new Intent(MainActivity.this, CsvMake.class);
+                startActivity(intent);
+                Log.d("a ", "start transition to capture mode！");
+            }
+        });
         Button view = binding.viewBtn;
         view.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v){
