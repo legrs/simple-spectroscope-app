@@ -17,7 +17,7 @@
 
         <Space
             android:layout_width="match_parent"
-            android:layout_height="20dp" />
+            android:layout_height="50dp" />
 
         <EditText
             android:id="@+id/input1"
@@ -38,13 +38,27 @@
         tools:layout_editor_absoluteY="54dp" />
 
 
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="50dp" />
+
         <ImageView
             android:id="@+id/iv"
             android:layout_width="match_parent"
-            android:layout_height="100dp"
+            android:layout_height="150dp"
             android:scaleType="centerCrop"
             app:layout_constraintRight_toRightOf="parent"
             app:srcCompat="@android:drawable/ic_menu_gallery" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="50dp" />
+
+        <TextView
+            android:id="@+id/t1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="50" />
 
     <SeekBar
         android:id="@+id/sb1"
@@ -53,6 +67,15 @@
         app:layout_constraintStart_toStartOf="parent"
         tools:layout_editor_absoluteY="125dp" />
 
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="50dp" />
+
+        <TextView
+            android:id="@+id/t2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="50" />
     <SeekBar
         android:id="@+id/sb2"
         android:layout_width="match_parent"
@@ -60,6 +83,11 @@
         app:layout_constraintStart_toStartOf="parent"
         tools:layout_editor_absoluteY="155dp" />
 
+        <TextView
+            android:id="@+id/expo_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="50" />
         <Button
             android:id="@+id/export"
             android:layout_width="wrap_content"
@@ -69,4 +97,19 @@
             tools:layout_editor_absoluteY="657dp" />
 
     </LinearLayout>
+
+
+
+    <FrameLayout
+        android:id="@+id/line"
+        android:layout_width="0dp"
+        android:layout_height="220dp"
+        android:background="#000000">
+        <ImageView
+            android:id="@+id/line_view"
+            android:layout_width="3px"
+            android:layout_height="220dp"
+            android:background="#FF0000" />
+    </FrameLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.util.Log;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -17,6 +18,8 @@ import com.example.ssa.databinding.ActivityCsvMakeBinding;
 
 import android.content.ContentResolver;
 import android.provider.MediaStore;
+import android.widget.SeekBar;
+import android.widget.TextView;
 
 public class CsvMake extends AppCompatActivity{
 
@@ -25,6 +28,11 @@ public class CsvMake extends AppCompatActivity{
 
     private ActivityCsvMakeBinding binding;
 
+    int[] pos = {0,0};
+    float scale = 0.4F;
+    float dispWidth ;
+    float dispHeight;
+    int linePos = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +45,11 @@ public class CsvMake extends AppCompatActivity{
 
         // UIs
         Button openBtn = binding.open;
+        SeekBar sb1 = binding.sb1;
+        SeekBar sb2 = binding.sb2;
+        TextView t1 = binding.t1;
+        TextView t2 = binding.t2;
+        FrameLayout line = binding.line;
         iv = binding.iv;
         iv.setScaleType(ImageView.ScaleType.MATRIX);
 
@@ -73,25 +86,30 @@ public class CsvMake extends AppCompatActivity{
                     iv.setImageURI(uri);
                     Log.d("a", "open");
                     Matrix matrix = new Matrix();
-                    float dispWidth = iv.getWidth();
+                    dispWidth = iv.getWidth();
+                    dispHeight = iv.getHeight();
                     float imgWidth = iv.getDrawable().getIntrinsicWidth();
+                    float imgHeight = iv.getDrawable().getIntrinsicHeight();
                     Log.d("a","" + dispWidth);
+                    Log.d("a","" + dispHeight);
                     Log.d("a","" + imgWidth);
-                    float scale = 0.5F;
+                    Log.d("a","" + imgHeight);
                     matrix.setScale(scale, scale);
-                    matrix.postTranslate(dispWidth - scale*imgWidth, 0);
+                    //matrix.postTranslate(dispWidth - scale*imgWidth, -(imgHeight-dispHeight)/2);
+                    matrix.postTranslate(dispWidth - scale*imgWidth, -(scale*imgHeight-dispHeight)/2);
                     iv.setImageMatrix(matrix);
+                    iv.getLocationOnScreen(pos);
                 }
             }
         });
-        /*
-        expoBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        sb1.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                i = (int)Math.pow(10,(double)i*3.0/100.0);
-                expo = (long)i*1000000L;
-                expoTxt.setText(i + "");
-                cam.changeValueOfPreview(0, -100, expo, -1);
+                Log.d("a","" + i);
+                t1.setText("" + i);
+                linePos = 300+i*3;
+                line.setX(dispWidth-linePos*scale);
+                line.setY(pos[1]-50);
             }
 
             @Override
@@ -102,7 +120,6 @@ public class CsvMake extends AppCompatActivity{
             public void onStopTrackingTouch(SeekBar seekBar) {
             }
         });
-        */
 
 
     }
